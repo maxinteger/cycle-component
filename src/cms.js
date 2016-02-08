@@ -1,7 +1,5 @@
-import Rx from 'rx';
 import _ from 'lodash/fp';
-import {input} from '@cycle/dom';
-
+import {div, input, label, textarea} from '@cycle/dom';
 
 const Components = {
     componentRepository: {},
@@ -33,7 +31,36 @@ const Components = {
 export const textPlaceholder = (name, descriptor) => {
     const fn = (value) => ({DOM}) => {
         return {
-            DOM: input({value})
+            DOM: div('.form-group', [
+                label([descriptor.label]),
+                input('.form-control', {value})
+            ])
+        };
+    };
+    fn.id = name;
+    return fn;
+};
+
+export const datePlaceholder = (name, descriptor) => {
+    const fn = (value) => ({DOM}) => {
+        return {
+            DOM: div('.form-group', [
+                label([descriptor.label]),
+                input('.form-control', {type: 'date', value})
+            ])
+        };
+    };
+    fn.id = name;
+    return fn;
+};
+
+export const textareaPlaceholder = (name, descriptor) => {
+    const fn = (value) => ({DOM}) => {
+        return {
+            DOM: div('.form-group', [
+                label([descriptor.label]),
+                textarea('.form-control', {type: 'date', value})
+            ])
         };
     };
     fn.id = name;

@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev:server": "cd public && python -m SimpleHTTPServer",
     "dev:js": "webpack -dw --progress --config webpack.config.js",
-    "dev": "parallelshell 'npm run dev:server' 'npm run dev:js'",
+    "dev": "parallelshell \"npm run dev:server\" \"npm run dev:js\"",
     "build": "webpack --config webpack.config.js"
   },
   "author": "",
