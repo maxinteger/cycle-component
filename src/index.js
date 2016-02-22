@@ -2,6 +2,7 @@ import Rx from 'rx';
 import Cycle from '@cycle/core';
 import {makeDOMDriver, h1, h2, p, div, form, h, input} from '@cycle/dom';
 import {makeHistoryDriver} from '@cycle/history';
+import isolate from '@cycle/isolate';
 import {makeCMDDriver} from './cms';
 
 import {} from './components/page'
@@ -10,18 +11,21 @@ import {} from './components/blog-post'
 
 
 function main({DOM, History, CMS}) {
+    const placeholders = CMS.getPlaceholders('C').map( phs => phs.map( ph => isolate(ph)({DOM}) ));
+
     return {
         DOM:
             Rx.Observable.combineLatest(
                 CMS.getComponent('A'),
-                CMS.getPlaceholders('C'),
+                placeholders,
                 (component, placeholders) =>
                     div([
-                        form('.form.container', placeholders.map( (ph) => ph({DOM}).DOM )),
+                        form('.form.container', placeholders.map( ph => ph.DOM )),
                         h('hr'),
                         div(component({DOM, CMS}).DOM )
                     ])
-            )
+            ),
+        CMS: Rx.Observable.combineLatest([...placeholders.map( p => p.value$ )], (...args) => args)
     };
 }
 

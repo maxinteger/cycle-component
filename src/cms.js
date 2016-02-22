@@ -30,11 +30,21 @@ const Components = {
 
 export const textPlaceholder = (name, descriptor) => {
     const fn = (value) => ({DOM}) => {
+        const value$ = DOM.select('.form-control')
+            .events('input')
+            .map(ev => ({name, value: ev.target.value}))
+            .startWith({name, value});
+
         return {
-            DOM: div('.form-group', [
-                label([descriptor.label]),
-                input('.form-control', {value})
-            ])
+            DOM: Rx.Observable.combineLatest(
+                value$,
+                ({value}) =>
+                    div('.form-group', [
+                        label([descriptor.label]),
+                        input('.form-control', {value})
+                    ])
+            ),
+            value$
         };
     };
     fn.id = name;
@@ -43,11 +53,21 @@ export const textPlaceholder = (name, descriptor) => {
 
 export const datePlaceholder = (name, descriptor) => {
     const fn = (value) => ({DOM}) => {
+        const value$ = DOM.select('.form-control')
+            .events('input')
+            .map(ev => ({name, value: ev.target.value}))
+            .startWith({name, value});
+
         return {
-            DOM: div('.form-group', [
-                label([descriptor.label]),
-                input('.form-control', {type: 'date', value})
-            ])
+            DOM: Rx.Observable.combineLatest(
+                value$,
+                ({value}) =>
+                    div('.form-group', [
+                        label([descriptor.label]),
+                        input('.form-control', {type:'date', value})
+                    ])
+            ),
+            value$
         };
     };
     fn.id = name;
@@ -56,11 +76,21 @@ export const datePlaceholder = (name, descriptor) => {
 
 export const textareaPlaceholder = (name, descriptor) => {
     const fn = (value) => ({DOM}) => {
+        const value$ = DOM.select('.form-control')
+            .events('input')
+            .map(ev => ({name, value: ev.target.value}))
+            .startWith({name, value});
+
         return {
-            DOM: div('.form-group', [
-                label([descriptor.label]),
-                textarea('.form-control', {type: 'date', value})
-            ])
+            DOM: Rx.Observable.combineLatest(
+                value$,
+                ({value}) =>
+                    div('.form-group', [
+                        label([descriptor.label]),
+                        textarea('.form-control', {value})
+                    ])
+            ),
+            value$
         };
     };
     fn.id = name;
@@ -94,30 +124,37 @@ export const component = (meta, fn) => {
 
 
 export const makeCMDDriver = (initValue) => {
+    const model = _.cloneDeep(initValue);
     return (request$) => {
-        request$.subscribe((value) => console.log(value));
+        request$
+            .do(console.log.bind(console))
+            .doOnError(console.error.bind(console))
+            .subscribe( update => _.merge(model, update) );
 
         return {
             getComponentDescriptor(id) {
                 return request$
                     .filter( req => req.id === id )
                     .map( req => req.value )
-                    .startWith( initValue.components[id] )
+                    .startWith( model.components[id] )
             },
             getComponent (id) {
-                return this.getComponentDescriptor(id)
+                return this
+                    .getComponentDescriptor(id)
                     .map( comp => Components.resolve(comp.type).body(comp) )
             },
             getPlaceholders(id) {
-                return this.getComponentDescriptor(id)
+                return this
+                    .getComponentDescriptor(id)
                     .map( comp =>
                         Components.resolve(comp.type).placeholders.map( (ph) =>
                             ph(comp.placeholders[ph.id])
                         )
                     )
             },
-            updatePlaceholders(id, placeholders){
-                return
+            updatePlaceholder(id, placeholder$){
+                return placeholder$
+                    .map( p => ({ components:{ [id]: { placeholders: {[p.name]: p.value} } }}) );
             }
         }
     }
