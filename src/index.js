@@ -25,7 +25,7 @@ function main({DOM, History, CMS}) {
                         div(component({DOM, CMS}).DOM )
                     ])
             ),
-        CMS: Rx.Observable.combineLatest([...placeholders.map( p => p.value$ )], (...args) => args)
+        CMS: Rx.Observable.combineLatest([...placeholders.map( p => p.value$ )], (...args) => console.log(args) || args)
     };
 }
 

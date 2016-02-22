@@ -1,5 +1,6 @@
 import {h2, p, div} from '@cycle/dom';
-import {component, textPlaceholder, datePlaceholder, textareaPlaceholder} from "../cms";
+import {component} from '../cms';
+import {textPlaceholder, datePlaceholder, textareaPlaceholder} from '../placeholders';
 
 export default component({
     type: 'blog-post',

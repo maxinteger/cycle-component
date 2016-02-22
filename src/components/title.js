@@ -1,5 +1,6 @@
 import {div, h1} from '@cycle/dom';
-import {component, textPlaceholder} from "../cms";
+import {component} from '../cms';
+import {textPlaceholder} from '../placeholders';
 
 export default component({
     type: 'title',
